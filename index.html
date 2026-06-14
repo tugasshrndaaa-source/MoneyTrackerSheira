@@ -59,8 +59,12 @@
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{height:100%;overscroll-behavior:none;background:var(--bg)}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);padding-bottom:var(--nav);font-size:14px;line-height:1.5}
+body{font-family:...;font-size:14px;line-height:1.5}
+input,textarea,select{font-size:max(16px,1em);font-family:inherit}
+@media(min-width:430px){input,textarea,select{font-size:14px}}
+
 .app{max-width:430px;margin:0 auto;min-height:100vh}
 
 /* ── PAGE TRANSITIONS ── */
@@ -348,7 +352,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(-
   letter-spacing:.07em;text-transform:uppercase
 }
 .th-l:not(:first-child){text-align:right}
-.tbl-body{max-height:55vh;overflow-y:auto}
+.tbl-body{
+  max-height:calc(100dvh - 54px - 68px - 160px - 40px - 48px - 44px - 38px - 28px);
+  min-height:120px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
 .tbl-body::-webkit-scrollbar{width:4px}
 .tbl-body::-webkit-scrollbar-thumb{background:var(--border-m);border-radius:4px}
 .tbl-row{
