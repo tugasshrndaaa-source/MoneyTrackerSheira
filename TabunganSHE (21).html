@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Money Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.31.0/iconfont/tabler-icons.min.css">
+<style>
+/* ── PLN BLUE PALETTE ── */
+:root {
+  /* Background */
+  --bg:          #F0F4F8;
+  --surface:     #FFFFFF;
+  --surface2:    #F5F8FB;
+  --border:      #DDE5EF;
+  --border-m:    #C8D5E4;
+
+  /* Text */
+  --t1: #0A1628;
+  --t2: #4A5F7A;
+  --t3: #8FA3BC;
+
+  /* PLN Blue family */
+  --blue-900: #001B4E;
+  --blue-800: #002D7A;
+  --blue-700: #0040A8;
+  --blue-600: #0055D4;
+  --blue:     #006AFF;   /* primary */
+  --blue-400: #3D8AFF;
+  --blue-300: #80B2FF;
+  --blue-dim: rgba(0,106,255,0.09);
+  --blue-light: #EBF2FF;
+  --blue-border: rgba(0,106,255,0.22);
+
+  /* Accent — PLN yellow */
+  --yellow:      #FFB800;
+  --yellow-dim:  rgba(255,184,0,0.12);
+  --yellow-light:#FFF8E0;
+
+  /* Status */
+  --green:       #059669;
+  --green-dim:   rgba(5,150,105,0.09);
+  --green-light: #ECFDF5;
+  --red:         #DC2626;
+  --red-dim:     rgba(220,38,38,0.09);
+  --red-light:   #FEF2F2;
+  --amber:       #D97706;
+  --amber-dim:   rgba(217,119,6,0.09);
+  --amber-light: #FFFBEB;
+
+  --r:    16px;
+  --r-sm: 10px;
+  --r-xs: 7px;
+  --nav:  68px;
+  --shadow-sm: 0 1px 2px rgba(0,26,100,.04), 0 2px 8px rgba(0,26,100,.06);
+  --shadow:    0 2px 4px rgba(0,26,100,.05), 0 8px 24px rgba(0,26,100,.08);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none;background:var(--bg)}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);padding-bottom:var(--nav);font-size:14px;line-height:1.5}
+.app{max-width:430px;margin:0 auto;min-height:100vh}
+
+/* ── PAGE TRANSITIONS ── */
+.page{display:none}
+.page.active{display:block;animation:pg .28s cubic-bezier(.22,1,.36,1)}
+@keyframes pg{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sec-page{display:none}
+.sec-page.active{display:block;animation:pg .2s cubic-bezier(.22,1,.36,1)}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 18px;
+  height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:40;
+}
+.topbar-brand{display:flex;align-items:center;gap:9px}
+.brand-dot{width:9px;height:9px;border-radius:50%}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.topbar-pill{
+  font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;
+  letter-spacing:.04em;text-transform:uppercase
+}
+.pill-tab{background:var(--blue-light);color:var(--blue)}
+.pill-mb {background:var(--blue-light);color:var(--blue-700)}
+
+/* ── HERO CARD ── */
+.hero{
+  margin:14px 14px 0;
+  border-radius:var(--r);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.hero-inner{
+  background:linear-gradient(140deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue) 100%);
+  padding:22px 20px 0;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+/* Decorative circles */
+.hero-inner::before{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:130px;height:130px;border-radius:50%;
+  background:rgba(255,255,255,.06)
+}
+.hero-inner::after{
+  content:'';position:absolute;bottom:-20px;right:40px;
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(255,255,255,.04)
+}
+.hero-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;opacity:.65;margin-bottom:6px
+}
+.hero-amount{
+  font-size:36px;font-weight:800;letter-spacing:-.03em;
+  line-height:1;transition:opacity .3s
+}
+.hero-amount.flash{opacity:.4}
+.hero-amount.warn{color:#FFDC5E}
+.hero-sub{font-size:12px;opacity:.6;margin-top:5px;padding-bottom:18px}
+.hero-stats{
+  display:flex;
+  border-top:1px solid rgba(255,255,255,.12);
+  margin:0 -20px;
+}
+.hs{
+  flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:2px
+}
+.hs+.hs{border-left:1px solid rgba(255,255,255,.1)}
+.hs-label{font-size:10px;font-weight:600;opacity:.55;letter-spacing:.06em;text-transform:uppercase}
+.hs-value{font-size:13px;font-weight:700}
+.hs-v-green{color:#6EE7B7}
+.hs-v-red  {color:#FCA5A5}
+.hs-v-blue {color:#93C5FD}
+.hs-v-yellow{color:#FCD34D}
+
+/* ── TOGGLE ── */
+.toggle-wrap{margin:12px 14px 0}
+.toggle{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:50px;
+  padding:4px;
+  display:flex;
+  gap:4px;
+  box-shadow:var(--shadow-sm);
+}
+.tgl{
+  flex:1;padding:9px 0;font-size:13px;font-weight:600;border:none;
+  border-radius:46px;background:transparent;color:var(--t2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .18s,color .18s,box-shadow .18s;letter-spacing:-.01em
+}
+.tgl.on{
+  background:var(--blue);color:#fff;
+  box-shadow:0 2px 10px rgba(0,106,255,.35)
+}
+.tgl-badge{
+  display:none;font-size:10px;font-weight:800;padding:1px 6px;
+  border-radius:10px;background:rgba(255,255,255,.25);color:#fff
+}
+
+/* ── SECTION BODY ── */
+.sec-body{padding:14px 14px 0}
+
+/* ── SECTION LABEL ── */
+.sec-label{
+  font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px
+}
+
+/* ── FORM CARD ── */
+.fcard{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;box-shadow:var(--shadow-sm);
+}
+.fcard+.fcard{margin-top:10px}
+.fcard-title{
+  font-size:14px;font-weight:700;color:var(--t1);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px
+}
+
+/* INPUT PAIR for tabungan — equal height */
+.input-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
+.input-pair .fcard{display:flex;flex-direction:column}
+.input-pair .fcard .field:last-of-type{flex:1;display:flex;flex-direction:column}
+.input-pair .fcard .field:last-of-type textarea{flex:1;height:auto;min-height:56px}
+.input-pair .fcard .btn{margin-top:auto}
+
+/* ── FIELDS ── */
+.field{margin-bottom:11px}
+.field label{
+  font-size:11px;font-weight:600;color:var(--t2);display:block;
+  margin-bottom:5px;letter-spacing:.03em
+}
+.field input,.field textarea,.field select{
+  width:100%;font-size:14px;padding:9px 12px;
+  border:1.5px solid var(--border-m);border-radius:var(--r-sm);
+  background:var(--surface2);color:var(--t1);outline:none;
+  font-family:inherit;transition:border-color .18s,box-shadow .18s;appearance:none
+}
+.field input::placeholder,.field textarea::placeholder{color:var(--t3)}
+.field input:focus,.field textarea:focus,.field select:focus{
+  border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim);background:var(--surface)
+}
+.field textarea{height:58px;resize:none}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234A5F7A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px
+}
+
+/* ── BUTTONS ── */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 16px;font-size:13px;font-weight:700;border-radius:var(--r-sm);
+  border:none;cursor:pointer;font-family:inherit;letter-spacing:-.01em;
+  width:100%;transition:filter .15s,transform .1s
+}
+.btn:active{transform:scale(.97);filter:brightness(.88)}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(0,106,255,.28)}
+.btn-danger {background:var(--red-dim);color:var(--red);border:1.5px solid rgba(220,38,38,.2)}
+.btn-outline{background:transparent;color:var(--t2);border:1.5px solid var(--border-m)}
+
+/* ── TOP-UP CARD ── */
+.topup-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);box-shadow:var(--shadow-sm);overflow:hidden
+}
+.topup-input-row{
+  display:flex;align-items:center;gap:10px;padding:13px 15px
+}
+.topup-input-row i{font-size:18px;color:var(--t3);flex-shrink:0}
+.topup-input-row input{
+  flex:1;background:transparent;border:none;font-size:14px;
+  font-family:inherit;color:var(--t1);outline:none
+}
+.topup-input-row input::placeholder{color:var(--t3)}
+.btn-add{
+  padding:7px 14px;font-size:12px;font-weight:700;border-radius:20px;
+  border:1.5px solid var(--blue-border);background:var(--blue-light);
+  color:var(--blue);cursor:pointer;font-family:inherit;white-space:nowrap
+}
+.btn-add:active{opacity:.8}
+
+.topup-list{border-top:1px solid var(--border)}
+.topup-list-label{
+  font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.07em;
+  text-transform:uppercase;padding:10px 15px 6px
+}
+.topup-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 15px;border-top:1px solid var(--border);transition:background .12s
+}
+.topup-item:hover{background:var(--surface2)}
+.topup-item:first-of-type{border-top:none}
+.ti-left{display:flex;flex-direction:column;gap:1px}
+.ti-name{font-size:13px;font-weight:600;color:var(--t1)}
+.ti-date{font-size:11px;color:var(--t3)}
+.ti-right{display:flex;align-items:center;gap:8px}
+.ti-amt{font-size:13px;font-weight:700;color:var(--blue)}
+.btn-del-sm{
+  background:none;border:none;cursor:pointer;color:var(--t3);
+  padding:3px;border-radius:5px;font-size:13px;display:flex;
+  opacity:0;transition:opacity .15s,color .15s
+}
+.topup-item:hover .btn-del-sm{opacity:1}
+.btn-del-sm:hover{color:var(--red)}
+
+/* ── HISTORY ── */
+.filter-bar{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.fchip{
+  font-size:12px;font-weight:600;padding:5px 13px;border-radius:20px;
+  border:1.5px solid var(--border-m);background:var(--surface);
+  cursor:pointer;color:var(--t2);transition:all .15s;white-space:nowrap
+}
+.fchip.on{background:var(--blue-light);color:var(--blue);border-color:var(--blue-border)}
+.btn-clearall{
+  margin-left:auto;font-size:12px;font-weight:500;padding:5px 11px;border-radius:20px;
+  border:1.5px solid var(--border);background:transparent;cursor:pointer;color:var(--t3);
+  display:flex;align-items:center;gap:4px;transition:color .15s,border-color .15s;white-space:nowrap
+}
+.btn-clearall:hover{color:var(--red);border-color:rgba(220,38,38,.35)}
+
+.hlist{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm)
+}
+.hitem{
+  display:flex;align-items:center;gap:11px;padding:13px 15px;
+  border-bottom:1px solid var(--border);transition:background .12s;animation:pg .18s ease
+}
+.hitem:last-child{border-bottom:none}
+.hitem:hover{background:var(--surface2)}
+.hi-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:15px
+}
+.hi-in {background:var(--green-light);color:var(--green)}
+.hi-out{background:var(--blue-light);color:var(--blue)}
+.hi-body{flex:1;min-width:0}
+.hi-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi-date {font-size:11px;color:var(--t3);margin-top:2px}
+.hi-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hi-amt{font-size:13px;font-weight:700}
+.ha-in {color:var(--green)}
+.ha-out{color:var(--red)}
+.btn-del{
+  background:none;border:none;cursor:pointer;color:var(--t3);opacity:0;
+  padding:4px;border-radius:6px;font-size:14px;display:flex;align-items:center;
+  transition:opacity .15s,color .15s,background .15s
+}
+.hitem:hover .btn-del{opacity:1}
+.btn-del:hover{color:var(--red);background:var(--red-light)}
+
+/* ── TABLE ── */
+.tbl-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm)
+}
+.tbl-head{
+  display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr;
+  background:var(--blue-900);padding:0 14px
+}
+.tbl-head-light{
+  display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr;
+  background:var(--surface2);border-bottom:1px solid var(--border);padding:0 14px
+}
+.th{
+  padding:11px 0;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);
+  letter-spacing:.07em;text-transform:uppercase
+}
+.th:not(:first-child){text-align:right}
+.th-l{
+  padding:10px 0;font-size:10px;font-weight:700;color:var(--t3);
+  letter-spacing:.07em;text-transform:uppercase
+}
+.th-l:not(:first-child){text-align:right}
+.tbl-body{max-height:55vh;overflow-y:auto}
+.tbl-body::-webkit-scrollbar{width:4px}
+.tbl-body::-webkit-scrollbar-thumb{background:var(--border-m);border-radius:4px}
+.tbl-row{
+  display:grid;grid-template-columns:1.8fr 1.2fr 1fr 1.1fr;
+  padding:0 14px;border-bottom:1px solid var(--border);
+  transition:background .12s;animation:pg .18s ease;align-items:center
+}
+.tbl-row:last-child{border-bottom:none}
+.tbl-row:hover{background:var(--surface2)}
+.td{
+  padding:12px 0;font-size:12px;color:var(--t1);
+  display:flex;align-items:center;min-width:0
+}
+.td:not(:first-child){justify-content:flex-end}
+.td-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px}
+.kat-pill{
+  font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap
+}
+.kat-paket   {background:#EFF6FF;color:#2563EB}
+.kat-ngopi   {background:#FDF6EC;color:#92400E}
+.kat-pod     {background:#F3F0FF;color:#6D28D9}
+.kat-makan   {background:#FFF7ED;color:#C2410C}
+.kat-fashion {background:#FFF0F6;color:#BE185D}
+.kat-skincare{background:#F0FDFA;color:#0F766E}
+.kat-trans   {background:#F0FDF4;color:#15803D}
+.kat-belanja {background:#FAF5FF;color:#7C3AED}
+.kat-tagihan {background:#FFF1F2;color:#BE123C}
+.kat-hiburan {background:#FFFBEB;color:#B45309}
+.kat-kesehatan{background:#F0FDFA;color:#0D9488}
+.kat-pindah  {background:#EFF6FF;color:#1D4ED8}
+.kat-terduga {background:#FEF3C7;color:#92400E}
+.kat-lainnya {background:#F8FAFC;color:#64748B}
+.td-amt{font-weight:700;color:var(--red)}
+.td-sisa{font-weight:700}
+.sisa-ok {color:var(--green)}
+.sisa-low{color:var(--amber)}
+.sisa-neg{color:var(--red)}
+.tbl-empty{
+  padding:36px 0;text-align:center;color:var(--t3);
+  display:flex;flex-direction:column;align-items:center;gap:6px
+}
+.tbl-empty i{font-size:26px;opacity:.4}
+.tbl-empty span{font-size:13px}
+
+/* ── RINGKASAN FILTER TABS ── */
+.ring-tabs{display:flex;gap:0;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
+.rtab{
+  flex:1;padding:9px 0;font-size:12px;font-weight:600;border:none;background:transparent;
+  color:var(--t2);cursor:pointer;transition:background .15s,color .15s;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:5px
+}
+.rtab+.rtab{border-left:1px solid var(--border)}
+.rtab.on{background:var(--blue);color:#fff}
+
+/* ── KATEGORI SUMMARY CARDS ── */
+.kat-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:14px 15px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;
+  transition:box-shadow .15s
+}
+.kat-card:hover{box-shadow:var(--shadow)}
+.kat-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.kat-card-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+.kat-card-count{font-size:11px;color:var(--t3);font-weight:500}
+.kat-card-amt{font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-.02em}
+.kat-bar-wrap{height:3px;background:var(--border);border-radius:10px;margin-top:8px;overflow:hidden}
+.kat-bar{height:100%;border-radius:10px;background:var(--blue);transition:width .5s cubic-bezier(.22,1,.36,1)}
+
+/* ── RINGKASAN TOTAL ROW ── */
+.ring-total{
+  background:var(--blue-900);border-radius:var(--r-sm);
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px
+}
+.ring-total-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.04em;text-transform:uppercase}
+.ring-total-amt{font-size:15px;font-weight:800;color:#fff}
+
+.empty-state{
+  padding:44px 0;text-align:center;color:var(--t3);
+  display:flex;flex-direction:column;align-items:center;gap:8px
+}
+.empty-state i{font-size:28px;opacity:.4}
+.empty-state span{font-size:13px}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:var(--nav);
+  background:rgba(255,255,255,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);display:flex;z-index:50;
+  padding-bottom:env(safe-area-inset-bottom,0);
+  max-width:430px;margin:0 auto;
+}
+.nb{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;border:none;background:none;cursor:pointer;color:var(--t3);
+  font-size:10px;font-weight:700;letter-spacing:.05em;transition:color .15s;padding-top:4px
+}
+.nb i{font-size:21px;transition:transform .2s}
+.nb.on{color:var(--blue)}
+.nb.on i{transform:translateY(-2px)}
+.nb-dot{width:4px;height:4px;border-radius:50%;background:transparent;transition:background .15s}
+.nb.on .nb-dot{background:var(--blue)}
+
+/* ── MONTH FILTER ── */
+.month-filter-row{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap
+}
+.mf-select-wrap{position:relative;flex:1;min-width:100px}
+.mf-select{
+  width:100%;font-size:13px;font-weight:600;padding:8px 30px 8px 12px;
+  border:1.5px solid var(--border-m);border-radius:var(--r-sm);
+  background:var(--surface);color:var(--t1);outline:none;
+  font-family:inherit;appearance:none;cursor:pointer;
+  transition:border-color .18s,box-shadow .18s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234A5F7A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center
+}
+.mf-select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim)}
+
+/* ── CUSTOM KATEGORI DROPDOWN ── */
+.custom-select{
+  width:100%;font-size:14px;padding:9px 12px;
+  border:1.5px solid var(--border-m);border-radius:var(--r-sm);
+  background:var(--surface2);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  transition:border-color .18s,box-shadow .18s;user-select:none
+}
+.custom-select.open{
+  border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim);background:var(--surface)
+}
+.custom-select.filled{color:var(--t1)}
+.kat-drop{
+  display:none;margin-top:6px;
+  background:var(--surface);border:1.5px solid var(--border-m);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden;
+  animation:dropIn .18s cubic-bezier(.22,1,.36,1)
+}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.kat-drop.open{display:block}
+.kat-drop-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--border);
+}
+.kat-opt{
+  background:var(--surface);padding:11px 13px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:background .12s;font-size:13px;font-weight:500;color:var(--t1)
+}
+.kat-opt:hover{background:var(--blue-light)}
+.kat-opt.selected{background:var(--blue-light);color:var(--blue);font-weight:700}
+.kat-opt-emoji{font-size:16px;flex-shrink:0;line-height:1}
+.kat-opt-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(var(--nav)+12px);left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--blue-900);color:#fff;
+  padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;
+  z-index:200;opacity:0;pointer-events:none;white-space:nowrap;
+  transition:opacity .22s,transform .22s cubic-bezier(.34,1.56,.64,1)
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── BOTTOM SHEET ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,20,60,.45);z-index:80;
+  display:none;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)
+}
+.overlay.show{display:flex}
+.sheet{
+  background:var(--surface);width:100%;max-width:430px;
+  border-radius:22px 22px 0 0;padding:12px 20px 32px
+}
+.sheet-handle{width:36px;height:4px;background:var(--border-m);border-radius:2px;margin:0 auto 18px}
+.sheet h4{font-size:16px;font-weight:700;margin-bottom:6px}
+.sheet p {font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.5}
+.sheet-btns{display:flex;gap:8px}
+.sheet-btns button{flex:1;padding:12px;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit}
+.s-cancel{background:var(--surface2);color:var(--t1)}
+.s-ok    {background:var(--red-dim);color:var(--red);border:1.5px solid rgba(220,38,38,.2)}
+
+.divider{height:1px;background:var(--border);margin:14px 0}
+.gap{height:18px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════════ PAGE: TABUNGAN ══════════════════ -->
+<div id="pg-tab" class="page active">
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-dot" style="background:var(--blue)"></span>
+      <span class="brand-name">Money Tracker</span>
+    </div>
+    <span class="topbar-pill pill-tab">Tabungan</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Saldo Tabungan</div>
+      <div class="hero-amount" id="saldoTabungan">Rp 0</div>
+      <div class="hero-sub">Akumulasi tabungan bersih kamu</div>
+      <div class="hero-stats">
+        <div class="hs">
+          <span class="hs-label">Masuk</span>
+          <span class="hs-value hs-v-green" id="totalMasuk">Rp 0</span>
+        </div>
+        <div class="hs">
+          <span class="hs-label">Keluar</span>
+          <span class="hs-value hs-v-red" id="totalKeluar">Rp 0</span>
+        </div>
+        <div class="hs">
+          <span class="hs-label">Transaksi</span>
+          <span class="hs-value hs-v-blue" id="jmlTransaksi">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOGGLE -->
+  <div class="toggle-wrap">
+    <div class="toggle">
+      <button class="tgl on" id="tb-i" onclick="switchSec('tab','input',this)">
+        <i class="ti ti-edit" style="font-size:15px"></i> Input
+      </button>
+      <button class="tgl" id="tb-r" onclick="switchSec('tab','riwayat',this)">
+        <i class="ti ti-clock" style="font-size:15px"></i> Riwayat
+        <span class="tgl-badge" id="badge-tab"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INPUT TABUNGAN -->
+  <div id="tab-sec-input" class="sec-page active">
+    <div class="sec-body">
+      <div class="input-pair">
+        <!-- Nabung -->
+        <div class="fcard">
+          <div class="fcard-title">
+            <i class="ti ti-arrow-bar-to-up" style="font-size:16px;color:var(--green)"></i>
+            Nabung
+          </div>
+          <div class="field">
+            <label>Nominal (Rp)</label>
+            <input type="number" id="tabMasukNom" placeholder="500.000" min="1" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label>Catatan</label>
+            <textarea id="tabMasukKet" placeholder="Nabung bulan ini..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="tambahTabungan('masuk')">
+            <i class="ti ti-check" style="font-size:15px"></i> Simpan
+          </button>
+        </div>
+        <!-- Ambil -->
+        <div class="fcard">
+          <div class="fcard-title">
+            <i class="ti ti-arrow-bar-to-down" style="font-size:16px;color:var(--red)"></i>
+            Ambil
+          </div>
+          <div class="field">
+            <label>Nominal (Rp)</label>
+            <input type="number" id="tabKeluarNom" placeholder="150.000" min="1" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label>Catatan</label>
+            <textarea id="tabKeluarKet" placeholder="Keperluan..."></textarea>
+          </div>
+          <button class="btn btn-danger" onclick="tambahTabungan('keluar')">
+            <i class="ti ti-minus" style="font-size:15px"></i> Ambil
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="gap"></div>
+  </div>
+
+  <!-- RIWAYAT TABUNGAN -->
+  <div id="tab-sec-riwayat" class="sec-page">
+    <div class="sec-body">
+      <div class="filter-bar">
+        <button class="fchip on" onclick="filterTab('semua',this)">Semua</button>
+        <button class="fchip" onclick="filterTab('masuk',this)">Masuk</button>
+        <button class="fchip" onclick="filterTab('keluar',this)">Keluar</button>
+        <button class="btn-clearall" onclick="clearAll('tab')">
+          <i class="ti ti-trash" style="font-size:12px"></i> Hapus semua
+        </button>
+      </div>
+      <div class="hlist" id="hist-tab"></div>
+    </div>
+    <div class="gap"></div>
+  </div>
+
+</div>
+
+<!-- ══════════════════ PAGE: MBANKING ══════════════════ -->
+<div id="pg-mb" class="page">
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-dot" style="background:var(--blue-400)"></span>
+      <span class="brand-name">Money Tracker</span>
+    </div>
+    <span class="topbar-pill pill-mb">Mbanking</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner" style="background:linear-gradient(140deg,var(--blue-900) 0%,var(--blue-800) 50%,var(--blue-700) 100%)">
+      <div class="hero-eyebrow">Saldo Rekening</div>
+      <div class="hero-amount" id="saldoMbanking">—</div>
+      <div class="hero-sub">Estimasi sisa saldo setelah transaksi</div>
+      <div class="hero-stats">
+        <div class="hs">
+          <span class="hs-label">Saldo Total</span>
+          <span class="hs-value hs-v-yellow" id="mbAwalDisplay">—</span>
+        </div>
+        <div class="hs">
+          <span class="hs-label">Ke Tabungan</span>
+          <span class="hs-value hs-v-blue" id="totalKeTabungan">Rp 0</span>
+        </div>
+        <div class="hs">
+          <span class="hs-label">Pengeluaran</span>
+          <span class="hs-value hs-v-red" id="totalKeluarMb">Rp 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOGGLE -->
+  <div class="toggle-wrap">
+    <div class="toggle">
+      <button class="tgl on" id="mb-i" onclick="switchSec('mb','input',this)">
+        <i class="ti ti-edit" style="font-size:15px"></i> Input
+      </button>
+      <button class="tgl" id="mb-r" onclick="switchSec('mb','ringkasan',this)">
+        <i class="ti ti-table" style="font-size:15px"></i> Ringkasan
+        <span class="tgl-badge" id="badge-mb"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INPUT MBANKING -->
+  <div id="mb-sec-input" class="sec-page active">
+    <div class="sec-body">
+
+      <!-- Top-up saldo -->
+      <div class="sec-label">
+        <i class="ti ti-wallet" style="font-size:14px;color:var(--blue)"></i>
+        Saldo Rekening
+      </div>
+      <div class="topup-card">
+        <div class="topup-input-row">
+          <i class="ti ti-plus-circle"></i>
+          <input type="number" id="mbTopupNom" placeholder="Tambah / top-up saldo (Rp)" min="0" inputmode="numeric">
+          <button class="btn-add" onclick="tambahSaldo()">Tambah</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Pengeluaran -->
+      <div class="sec-label">
+        <i class="ti ti-arrow-down-circle" style="font-size:14px;color:var(--blue)"></i>
+        Catat Pengeluaran
+      </div>
+      <div class="fcard">
+        <div class="field">
+          <label>Nama Transaksi</label>
+          <input type="text" id="mbNama" placeholder="Contoh: Beli paket data" maxlength="60">
+        </div>
+        <div class="field">
+          <label>Kategori</label>
+          <div class="custom-select" id="kat-select" onclick="toggleKatDrop()">
+            <span id="kat-display" style="color:var(--t3)">— Pilih kategori —</span>
+            <i class="ti ti-chevron-down" id="kat-chevron" style="font-size:14px;color:var(--t3);transition:transform .2s;flex-shrink:0"></i>
+          </div>
+          <input type="hidden" id="mbKat">
+          <div class="kat-drop" id="kat-drop">
+            <div class="kat-drop-grid" id="kat-drop-grid"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nominal (Rp)</label>
+          <input type="number" id="mbKeluarNom" placeholder="200.000" min="1" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary" onclick="tambahMbanking()">
+          <i class="ti ti-check" style="font-size:15px"></i> Catat Pengeluaran
+        </button>
+      </div>
+
+    </div>
+    <div class="gap"></div>
+  </div>
+
+  <!-- RINGKASAN -->
+  <div id="mb-sec-ringkasan" class="sec-page">
+    <div class="sec-body">
+
+      <!-- Filter chips: Semua / Top-up / Keluar -->
+      <div class="filter-bar">
+        <button class="fchip on" onclick="filterMb('semua',this)">Semua</button>
+        <button class="fchip" onclick="filterMb('masuk',this)">Top-up</button>
+        <button class="fchip" onclick="filterMb('keluar',this)">Keluar</button>
+        <button class="btn-clearall" onclick="clearAllMb()">
+          <i class="ti ti-trash" style="font-size:12px"></i> Hapus
+        </button>
+      </div>
+
+      <!-- LIST: semua & top-up -->
+      <div id="mb-ring-list" class="hlist"></div>
+
+      <!-- KELUAR sub-toggle (Per Transaksi / Per Kategori) -->
+      <div id="mb-ring-keluar-wrap" style="display:none">
+        <div class="ring-tabs" style="margin-bottom:12px">
+          <button class="rtab on" id="rtab-trx" onclick="switchRing('trx',this)">
+            <i class="ti ti-table" style="font-size:13px"></i> Per Transaksi
+          </button>
+          <button class="rtab" id="rtab-kat" onclick="switchRing('kat',this)">
+            <i class="ti ti-chart-donut" style="font-size:13px"></i> Per Kategori
+          </button>
+        </div>
+        <!-- Per transaksi: TABEL -->
+        <div id="ring-sub-trx" class="ring-sub">
+          <!-- Filter bulan & tahun -->
+          <div class="month-filter-row">
+            <div class="mf-select-wrap">
+              <select id="filter-bulan" onchange="renderTrxList()" class="mf-select">
+                <option value="">Semua Bulan</option>
+                <option value="0">Januari</option>
+                <option value="1">Februari</option>
+                <option value="2">Maret</option>
+                <option value="3">April</option>
+                <option value="4">Mei</option>
+                <option value="5">Juni</option>
+                <option value="6">Juli</option>
+                <option value="7">Agustus</option>
+                <option value="8">September</option>
+                <option value="9">Oktober</option>
+                <option value="10">November</option>
+                <option value="11">Desember</option>
+              </select>
+            </div>
+            <div class="mf-select-wrap">
+              <select id="filter-tahun" onchange="renderTrxList()" class="mf-select">
+                <option value="">Semua Tahun</option>
+              </select>
+            </div>
+            <span id="filter-count" style="font-size:12px;font-weight:600;color:var(--t3);margin-left:auto;white-space:nowrap"></span>
+          </div>
+          <div class="tbl-wrap">
+            <div class="tbl-head-light">
+              <div class="th-l">Transaksi</div>
+              <div class="th-l">Kategori</div>
+              <div class="th-l" style="text-align:right">Diambil</div>
+              <div class="th-l" style="text-align:right">Sisa Saldo</div>
+            </div>
+            <div class="tbl-body" id="tbl-mb"></div>
+          </div>
+        </div>
+        <!-- Per kategori: tanpa total banner -->
+        <div id="ring-sub-kat" class="ring-sub" style="display:none">
+          <div class="kat-summary" id="kat-summary"></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="gap"></div>
+  </div>
+
+</div>
+
+<!-- ══════════════════ BOTTOM NAV ══════════════════ -->
+<nav class="bottom-nav">
+  <button class="nb on" data-p="tabungan" onclick="switchPage('tabungan',this)">
+    <i class="ti ti-piggy-bank"></i>
+    <span>TABUNGAN</span>
+    <div class="nb-dot"></div>
+  </button>
+  <button class="nb" data-p="mbanking" onclick="switchPage('mbanking',this)">
+    <i class="ti ti-device-mobile"></i>
+    <span>MBANKING</span>
+    <div class="nb-dot"></div>
+  </button>
+</nav>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h4 id="cTitle">Konfirmasi</h4>
+    <p id="cMsg">Yakin mau hapus?</p>
+    <div class="sheet-btns">
+      <button class="s-cancel" onclick="closeConfirm()">Batal</button>
+      <button class="s-ok" id="cOk">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KT='she_tab_v5',KM='she_mb_v5',KTP='she_topup_v5';
+const lTab=()=>{try{return JSON.parse(localStorage.getItem(KT))||[]}catch{return[]}};
+const sTab=d=>localStorage.setItem(KT,JSON.stringify(d));
+const lMb=()=>{try{return JSON.parse(localStorage.getItem(KM))||[]}catch{return[]}};
+const sMb=d=>localStorage.setItem(KM,JSON.stringify(d));
+const lTp=()=>{try{return JSON.parse(localStorage.getItem(KTP))||[]}catch{return[]}};
+const sTp=d=>localStorage.setItem(KTP,JSON.stringify(d));
+const $=id=>document.getElementById(id);
+const fRp=n=>'Rp '+Math.abs(n).toLocaleString('id-ID');
+const fDt=ts=>{const d=new Date(ts);return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})};
+const fDtS=ts=>new Date(ts).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+const fDtShort=ts=>new Date(ts).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+const uid=()=>crypto.randomUUID();
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const KAT_CLASS={
+  'Paket Data':     'kat-paket',
+  'Ngopi':          'kat-ngopi',
+  'Pod':            'kat-pod',
+  'Makanan & Minuman':'kat-makan',
+  'Fashion':        'kat-fashion',
+  'Skincare':       'kat-skincare',
+  'Transportasi':   'kat-trans',
+  'Belanja':        'kat-belanja',
+  'Tagihan':        'kat-tagihan',
+  'Hiburan':        'kat-hiburan',
+  'Kesehatan':      'kat-kesehatan',
+  'Pindah Akun':    'kat-pindah',
+  'Tidak Terduga':  'kat-terduga',
+  'Lainnya':        'kat-lainnya',
+};
+
+let tabFilter='semua';
+
+function getTotalSaldo(){return lTp().reduce((s,t)=>s+t.nominal,0)}
+
+function render(){
+  const tab=lTab(),mb=lMb(),tp=lTp();
+  const masuk =tab.filter(t=>t.type==='masuk').reduce((s,t)=>s+t.nominal,0);
+  const keluar=tab.filter(t=>t.type==='keluar').reduce((s,t)=>s+t.nominal,0);
+
+  $('saldoTabungan').textContent=fRp(masuk-keluar);
+  $('totalMasuk').textContent=fRp(masuk);
+  $('totalKeluar').textContent=fRp(keluar);
+  $('jmlTransaksi').textContent=tab.length;
+
+  const bt=$('badge-tab');
+  if(tab.length){bt.textContent=tab.length;bt.style.display='inline'}else bt.style.display='none';
+
+  const totalSaldo=getTotalSaldo();
+  const keluarMb=mb.reduce((s,t)=>s+t.nominal,0);
+  // Saldo mbanking = top-up dikurangi uang ke tabungan (masuk) dan pengeluaran lainnya
+  const sisa=totalSaldo-masuk-keluarMb;
+
+  $('totalKeluarMb').textContent=fRp(keluarMb);
+  $('totalKeTabungan').textContent=fRp(masuk);  // informatif saja
+  $('mbAwalDisplay').textContent=totalSaldo>0?fRp(totalSaldo):'—';
+
+  const mbEl=$('saldoMbanking');
+  if(totalSaldo>0){
+    mbEl.textContent=fRp(sisa);
+    mbEl.className='hero-amount'+(sisa<0?' warn':'');
+  }else{mbEl.textContent='—';mbEl.className='hero-amount';}
+
+  const bm=$('badge-mb');
+  if(mb.length){bm.textContent=mb.length;bm.style.display='inline'}else bm.style.display='none';
+
+  renderHistTab(tabFilter);
+  renderMbRing();
+}
+
+function renderTopup(){
+  const tp=lTp();
+  const list=$('topup-list-items');
+  const empty=$('topup-empty');
+  if(!list) return;
+  if(!tp.length){
+    list.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  list.innerHTML=[...tp].sort((a,b)=>b.ts-a.ts).map(t=>`
+    <div class="topup-item">
+      <div class="ti-left">
+        <span class="ti-name">${esc(t.label||'Top-up saldo')}</span>
+        <span class="ti-date">${fDtS(t.ts)}</span>
+      </div>
+      <div class="ti-right">
+        <span class="ti-amt">+${fRp(t.nominal)}</span>
+        <button class="btn-del-sm" onclick="hapusTopup('${t.id}')"><i class="ti ti-x"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+function renderHistTab(f){
+  tabFilter=f;
+  const data=lTab(),fil=f==='semua'?data:data.filter(t=>t.type===f);
+  const el=$('hist-tab');
+  if(!fil.length){el.innerHTML=emptyH();return;}
+  el.innerHTML=[...fil].sort((a,b)=>b.ts-a.ts).map(t=>{
+    const isIn=t.type==='masuk';
+    return`<div class="hitem">
+      <div class="hi-icon ${isIn?'hi-in':'hi-out'}">
+        <i class="ti ti-arrow-${isIn?'up':'down'}"></i>
+      </div>
+      <div class="hi-body">
+        <div class="hi-title">${esc(t.ket||'—')}</div>
+        <div class="hi-date">${fDt(t.ts)}</div>
+      </div>
+      <div class="hi-right">
+        <span class="hi-amt ${isIn?'ha-in':'ha-out'}">${isIn?'+':'-'}${fRp(t.nominal)}</span>
+        <button class="btn-del" onclick="hapusTab('${t.id}')"><i class="ti ti-x"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let mbFilter='semua';
+let ringView='trx';
+
+function filterMb(f,btn){
+  mbFilter=f;
+  btn.closest('.filter-bar').querySelectorAll('.fchip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderMbRing();
+}
+
+function switchRing(sub,btn){
+  ringView=sub;
+  $('ring-sub-trx').style.display=sub==='trx'?'block':'none';
+  $('ring-sub-kat').style.display=sub==='kat'?'block':'none';
+  btn.closest('.ring-tabs').querySelectorAll('.rtab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(sub==='kat') renderKategori();
+  else renderTrxList();
+}
+
+function renderMbRing(){
+  const mb=lMb(), tp=lTp();
+  const list=$('mb-ring-list');
+  const keluarWrap=$('mb-ring-keluar-wrap');
+
+  if(mbFilter==='keluar'){
+    list.style.display='none';
+    keluarWrap.style.display='block';
+    // Pastikan sub yang aktif terlihat
+    $('ring-sub-trx').style.display = ringView==='trx' ? 'block' : 'none';
+    $('ring-sub-kat').style.display = ringView==='kat' ? 'block' : 'none';
+    if(ringView==='kat') renderKategori();
+    else renderTrxList();
+  } else {
+    list.style.display='block';
+    keluarWrap.style.display='none';
+
+    let rows=[];
+
+    if(mbFilter==='semua'){
+      // Top-up entries
+      const tpRows=[...tp].map(t=>({...t,_type:'topup'}));
+      // Keluar entries
+      const mbRows=[...mb].map(t=>({...t,_type:'keluar'}));
+      rows=[...tpRows,...mbRows].sort((a,b)=>b.ts-a.ts);
+    } else {
+      // masuk = top-up only
+      rows=[...tp].sort((a,b)=>b.ts-a.ts).map(t=>({...t,_type:'topup'}));
+    }
+
+    if(!rows.length){list.innerHTML=emptyH();return;}
+    list.innerHTML=rows.map(t=>{
+      if(t._type==='topup'){
+        return`<div class="hitem">
+          <div class="hi-icon hi-in"><i class="ti ti-arrow-bar-to-up"></i></div>
+          <div class="hi-body">
+            <div class="hi-title">${esc(t.label||'Top-up saldo')}</div>
+            <div class="hi-date">${fDt(t.ts)}</div>
+          </div>
+          <div class="hi-right">
+            <span class="hi-amt ha-in">+${fRp(t.nominal)}</span>
+            <button class="btn-del" onclick="hapusTopup('${t.id}')"><i class="ti ti-x"></i></button>
+          </div>
+        </div>`;
+      } else {
+        return`<div class="hitem">
+          <div class="hi-icon hi-out"><i class="ti ti-arrow-bar-to-down"></i></div>
+          <div class="hi-body">
+            <div class="hi-title">${esc(t.nama||'—')}</div>
+            <div class="hi-date">${fDt(t.ts)}</div>
+          </div>
+          <div class="hi-right">
+            <span class="hi-amt ha-out">-${fRp(t.nominal)}</span>
+            <button class="btn-del" onclick="hapusMb('${t.id}')"><i class="ti ti-x"></i></button>
+          </div>
+        </div>`;
+      }
+    }).join('');
+  }
+}
+
+function renderTrxList(){
+  const mb=lMb();
+  const el=$('tbl-mb');
+  const selBulan=$('filter-bulan');
+  const selTahun=$('filter-tahun');
+  const countEl=$('filter-count');
+
+  // Populate tahun dropdown dari data yang ada
+  const years=[...new Set(mb.map(t=>new Date(t.ts).getFullYear()))].sort((a,b)=>b-a);
+  const curTahun=selTahun.value;
+  selTahun.innerHTML='<option value="">Semua Tahun</option>'+years.map(y=>`<option value="${y}"${curTahun==y?' selected':''}>${y}</option>`).join('');
+
+  // Filter
+  const bulan=selBulan?selBulan.value:'';
+  const tahun=selTahun?selTahun.value:'';
+  let filtered=mb;
+  if(bulan!=='') filtered=filtered.filter(t=>new Date(t.ts).getMonth()===parseInt(bulan));
+  if(tahun!=='') filtered=filtered.filter(t=>new Date(t.ts).getFullYear()===parseInt(tahun));
+
+  // Total filtered
+  const totalAmt=filtered.reduce((s,t)=>s+t.nominal,0);
+  if(countEl) countEl.textContent=filtered.length>0?`${filtered.length} transaksi · ${fRp(totalAmt)}`:'';
+
+  if(!filtered.length){
+    el.innerHTML=`<div class="tbl-empty"><i class="ti ti-table-off"></i><span>${mb.length?'Tidak ada data di periode ini':'Belum ada transaksi'}</span></div>`;
+    return;
+  }
+
+  el.innerHTML=[...filtered].sort((a,b)=>b.ts-a.ts).map(t=>{
+    const kc=KAT_CLASS[t.kat]||'kat-lainnya';
+    const sc=t.sisaSaldo!=null?(t.sisaSaldo<0?'sisa-neg':t.sisaSaldo<100000?'sisa-low':'sisa-ok'):'';
+    return`<div class="tbl-row" style="grid-template-columns:1.8fr 1.2fr 1fr 1.1fr">
+      <div class="td" style="flex-direction:column;align-items:flex-start;gap:2px;padding-right:8px;min-width:0">
+        <span class="td-name" style="width:100%" title="${esc(t.nama)}">${esc(t.nama||'—')}</span>
+        <span style="font-size:10px;color:var(--t3);font-weight:500;white-space:nowrap">${fDtShort(t.ts)}</span>
+      </div>
+      <div class="td"><span class="kat-pill ${kc}">${esc(t.kat||'Lainnya')}</span></div>
+      <div class="td td-amt">${fRp(t.nominal)}</div>
+      <div class="td td-sisa ${sc}">${t.sisaSaldo!=null?fRp(t.sisaSaldo):'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(){ renderMbRing(); }
+
+function renderKategori(){
+  const mb=lMb();
+  const el=$('kat-summary');
+  if(!mb.length){
+    el.innerHTML=`<div style="grid-column:1/-1;padding:36px 0;text-align:center;color:var(--t3);display:flex;flex-direction:column;align-items:center;gap:8px"><i class="ti ti-chart-donut" style="font-size:28px;opacity:.4"></i><span style="font-size:13px">Belum ada data</span></div>`;
+    return;
+  }
+  const grouped={};let total=0;
+  mb.forEach(t=>{
+    const k=t.kat||'Lainnya';
+    if(!grouped[k]){grouped[k]={nominal:0,count:0};}
+    grouped[k].nominal+=t.nominal;grouped[k].count++;total+=t.nominal;
+  });
+  const sorted=Object.entries(grouped).sort((a,b)=>b[1].nominal-a[1].nominal);
+  const max=sorted[0][1].nominal;
+  el.innerHTML=sorted.map(([kat,data])=>{
+    const kc=KAT_CLASS[kat]||'kat-lainnya';
+    const pct=total>0?Math.round(data.nominal/total*100):0;
+    const barW=max>0?Math.round(data.nominal/max*100):0;
+    return`<div class="kat-card">
+      <div class="kat-card-top">
+        <span class="kat-card-pill ${kc}">${esc(kat)}</span>
+        <span class="kat-card-count">${data.count}x · ${pct}%</span>
+      </div>
+      <div class="kat-card-amt">${fRp(data.nominal)}</div>
+      <div class="kat-bar-wrap"><div class="kat-bar" style="width:${barW}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+const emptyH=()=>`<div class="empty-state"><i class="ti ti-inbox"></i><span>Belum ada data</span></div>`;
+
+/* ACTIONS */
+function tambahSaldo(){
+  const n=parseFloat($('mbTopupNom').value);
+  if(!n||n<=0){toast('Masukkan nominal yang valid');return;}
+  const bulan=new Date().toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  const tp=lTp();
+  tp.push({id:uid(),nominal:n,label:'Top-up '+bulan,ts:Date.now()});
+  sTp(tp);$('mbTopupNom').value='';render();toast('✓ Saldo berhasil ditambahkan');
+}
+
+function tambahTabungan(type){
+  const nEl=$(type==='masuk'?'tabMasukNom':'tabKeluarNom');
+  const kEl=$(type==='masuk'?'tabMasukKet':'tabKeluarKet');
+  const n=parseFloat(nEl.value);
+  if(!n||n<=0){toast('Masukkan nominal terlebih dahulu');nEl.focus();return;}
+  const d=lTab();
+  d.push({id:uid(),type,nominal:n,ket:kEl.value.trim(),ts:Date.now()});
+  sTab(d);nEl.value='';kEl.value='';
+  flashEl('saldoTabungan');render();
+  toast(type==='masuk'?'✓ Tabungan disimpan':'✓ Pengambilan dicatat');
+}
+
+function tambahMbanking(){
+  const nama=$('mbNama').value.trim();
+  const kat=$('mbKat').value;
+  const n=parseFloat($('mbKeluarNom').value);
+  if(!nama){toast('Isi nama transaksi dahulu');$('mbNama').focus();return;}
+  if(!kat){toast('Pilih kategori transaksi');$('mbKat').focus();return;}
+  if(!n||n<=0){toast('Masukkan nominal yang valid');$('mbKeluarNom').focus();return;}
+  const d=lMb();
+  // Hitung sisa saldo SEKARANG sebelum transaksi ini, lalu kurangi
+  const totalSaldo=getTotalSaldo();
+  const masukTab=lTab().filter(t=>t.type==='masuk').reduce((s,t)=>s+t.nominal,0);
+  const sudahKeluar=d.reduce((s,t)=>s+t.nominal,0);
+  const sisaSebelum=totalSaldo-masukTab-sudahKeluar;
+  const sisaSetelah=sisaSebelum-n;
+  // Simpan sisaSaldo sebagai snapshot permanen
+  d.push({id:uid(),nama,kat,nominal:n,sisaSaldo:sisaSetelah,ts:Date.now()});
+  sMb(d);$('mbNama').value='';$('mbKat').value='';$('mbKeluarNom').value='';resetKatDrop();
+  flashEl('saldoMbanking');render();toast('✓ Pengeluaran dicatat');
+}
+
+function hapusMb(id){
+  showConfirm('Hapus transaksi?','Data akan dihapus permanen.',()=>{
+    sMb(lMb().filter(t=>t.id!==id));render();toast('Transaksi dihapus');
+  });
+}
+function clearAllMb(){
+  const mb=lMb(),tp=lTp();
+  if(!mb.length&&!tp.length){toast('Belum ada data');return;}
+  showConfirm('Hapus semua?','Semua riwayat mbanking akan dihapus permanen.',()=>{
+    sMb([]);sTp([]);render();toast('Semua data dihapus');
+  });
+}
+function hapusTab(id){
+  showConfirm('Hapus transaksi?','Data akan dihapus permanen.',()=>{
+    sTab(lTab().filter(t=>t.id!==id));render();toast('Transaksi dihapus');
+  });
+}
+function hapusTopup(id){
+  showConfirm('Hapus riwayat ini?','Saldo akan berkurang sesuai nominal.',()=>{
+    sTp(lTp().filter(t=>t.id!==id));render();toast('Riwayat saldo dihapus');
+  });
+}
+function clearAll(grp){
+  const d=grp==='tab'?lTab():lMb();
+  if(!d.length){toast('Belum ada data');return;}
+  showConfirm('Hapus semua?','Seluruh riwayat akan dihapus permanen.',()=>{
+    if(grp==='tab')sTab([]);else sMb([]);
+    render();toast('Semua data dihapus');
+  });
+}
+
+/* NAV */
+function switchPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  $('pg-'+(name==='tabungan'?'tab':'mb')).classList.add('active');
+  btn.classList.add('on');
+}
+function switchSec(page,sec,btn){
+  const pre=page+'-sec-';
+  document.querySelectorAll(`[id^="${pre}"]`).forEach(p=>p.classList.remove('active'));
+  $(pre+sec).classList.add('active');
+  btn.closest('.toggle').querySelectorAll('.tgl').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function filterTab(type,btn){
+  btn.closest('.filter-bar').querySelectorAll('.fchip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderHistTab(type);
+}
+function switchRing(sub,btn){
+  document.querySelectorAll('.ring-sub').forEach(el=>el.style.display='none');
+  btn.closest('.ring-tabs').querySelectorAll('.rtab').forEach(b=>b.classList.remove('on'));
+  $('ring-sub-'+sub).style.display='block';
+  btn.classList.add('on');
+  if(sub==='kat') renderKategori();
+  else renderTrxList();
+}
+
+/* UTILS */
+function flashEl(id){
+  const el=$(id);if(!el)return;
+  el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),700);
+}
+let _tt;
+function toast(msg){
+  const el=$('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2600);
+}
+function showConfirm(title,msg,cb){
+  $('cTitle').textContent=title;$('cMsg').textContent=msg;
+  $('overlay').classList.add('show');
+  $('cOk').onclick=()=>{closeConfirm();cb();};
+}
+function closeConfirm(){$('overlay').classList.remove('show');}
+
+/* ── CUSTOM KAT DROPDOWN ── */
+const KATS=[
+  {val:'Paket Data',        emoji:'📡'},
+  {val:'Ngopi',             emoji:'☕'},
+  {val:'Pod',               emoji:'🌬️'},
+  {val:'Makanan & Minuman', emoji:'🍱'},
+  {val:'Fashion',           emoji:'👟'},
+  {val:'Skincare',          emoji:'✨'},
+  {val:'Transportasi',      emoji:'🛵'},
+  {val:'Belanja',           emoji:'🛒'},
+  {val:'Tagihan',           emoji:'🔌'},
+  {val:'Hiburan',           emoji:'🎧'},
+  {val:'Kesehatan',         emoji:'🩺'},
+  {val:'Pindah Akun',       emoji:'🔄'},
+  {val:'Tidak Terduga',     emoji:'⚠️'},
+  {val:'Lainnya',           emoji:'📎'},
+];
+
+(function buildDrop(){
+  const grid=$('kat-drop-grid');
+  grid.innerHTML=KATS.map(k=>`
+    <div class="kat-opt" data-val="${k.val}" onclick="selectKat('${k.val}','${k.emoji}',this)">
+      <span class="kat-opt-emoji">${k.emoji}</span>
+      <span class="kat-opt-label">${k.val}</span>
+    </div>`).join('');
+})();
+
+function toggleKatDrop(){
+  const drop=$('kat-drop');
+  const sel=$('kat-select');
+  const chev=$('kat-chevron');
+  const isOpen=drop.classList.contains('open');
+  drop.classList.toggle('open');
+  sel.classList.toggle('open');
+  chev.style.transform=isOpen?'rotate(0deg)':'rotate(180deg)';
+}
+
+function selectKat(val,emoji,el){
+  $('mbKat').value=val;
+  const disp=$('kat-display');
+  disp.textContent=emoji+' '+val;
+  disp.style.color='var(--t1)';
+  $('kat-select').classList.add('filled');
+  document.querySelectorAll('.kat-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  $('kat-drop').classList.remove('open');
+  $('kat-select').classList.remove('open');
+  $('kat-chevron').style.transform='rotate(0deg)';
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#kat-select')&&!e.target.closest('#kat-drop')){
+    const drop=$('kat-drop');
+    if(drop){
+      drop.classList.remove('open');
+      $('kat-select').classList.remove('open');
+      $('kat-chevron').style.transform='rotate(0deg)';
+    }
+  }
+});
+
+// Reset dropdown saat form diclear
+function resetKatDrop(){
+  $('mbKat').value='';
+  const disp=$('kat-display');
+  disp.textContent='— Pilih kategori —';
+  disp.style.color='var(--t3)';
+  $('kat-select').classList.remove('filled','open');
+  $('kat-drop').classList.remove('open');
+  $('kat-chevron').style.transform='rotate(0deg)';
+  document.querySelectorAll('.kat-opt').forEach(o=>o.classList.remove('selected'));
+}
+
+render();
+</script>
+</body>
+</html>
