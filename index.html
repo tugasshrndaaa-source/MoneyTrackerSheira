@@ -61,10 +61,10 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{height:100%;overscroll-behavior:none;background:var(--bg)}
-body{font-family:...;font-size:14px;line-height:1.5}
-input,textarea,select{font-size:16px;font-family:inherit}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--t1);padding-bottom:var(--nav);font-size:14px;line-height:1.5}
+/* Prevent iOS auto-zoom on input focus — minimum 16px */
+input,textarea,select{font-size:max(16px,1em);font-family:inherit}
 @media(min-width:430px){input,textarea,select{font-size:14px}}
-
 .app{max-width:430px;margin:0 auto;min-height:100vh}
 
 /* ── PAGE TRANSITIONS ── */
@@ -353,6 +353,17 @@ input,textarea,select{font-size:16px;font-family:inherit}
 }
 .th-l:not(:first-child){text-align:right}
 .tbl-body{
+  /* 
+    100dvh = tinggi layar sesungguhnya
+    54px   = topbar
+    68px   = bottom nav
+    ~160px = hero stats
+    ~40px  = toggle pill
+    ~48px  = ring-tabs
+    ~44px  = filter bulan/tahun
+    ~38px  = tbl-head
+    ~28px  = padding sec-body + gap
+  */
   max-height:calc(100dvh - 54px - 68px - 160px - 40px - 48px - 44px - 38px - 28px);
   min-height:120px;
   overflow-y:auto;
